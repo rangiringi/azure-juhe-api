@@ -14,25 +14,25 @@ def main():
     appkey = "24000e5c1b5338a94f68ce841d975f8a"
  
     #1.沪深股市
-    request1(appkey,"GET")
+    request1(appkey, "GET")
  
     #2.香港股市
-    #request2(appkey,"GET")
+    request2(appkey, "GET")
  
     #3.美国股市
-    #request3(appkey,"GET")
+    request3(appkey, "GET")
  
     #4.香港股市列表
-    #request4(appkey,"GET")
+    request4(appkey, "GET")
  
     #5.美国股市列表
-    #request5(appkey,"GET")
+    request5(appkey, "GET")
  
     #6.深圳股市列表
-    #request6(appkey,"GET")
+    request6(appkey, "GET")
  
     #7.沪股列表
-    #request7(appkey,"GET")
+    request7(appkey, "GET")
  
  
  
@@ -66,7 +66,7 @@ def request1(appkey, m="GET"):
 def request2(appkey, m="GET"):
     url = "http://web.juhe.cn:8080/finance/stock/hk"
     params = {
-        "num" : "", #股票代码，如：00001 为“长江实业”股票代码
+        "num" : "00001", #股票代码，如：00001 为“长江实业”股票代码
         "key" : appkey, #APP Key
  
     }
