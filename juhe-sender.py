@@ -1,46 +1,55 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import json, urllib
+import uuid
+import datetime
+import random
+import json
+import urllib
 from urllib import urlencode
- 
-#----------------------------------
-# è‚¡ç¥¨æ•°æ®è°ƒç”¨ç¤ºä¾‹ä»£ç  ï¼ èšåˆæ•°æ®
-# åœ¨çº¿æ¥å£æ–‡æ¡£ï¼šhttp://www.juhe.cn/docs/21
-#----------------------------------
- 
+from azure.servicebus import ServiceBusService
+
+
 def main():
- 
-    #é…ç½®æ‚¨ç”³è¯·çš„APPKey
+
     appkey = "24000e5c1b5338a94f68ce841d975f8a"
+
+    sbs = ServiceBusService(service_namespace='brucewaynetolltooth', shared_access_key_name='RootManageSharedAccessKey', shared_access_key_value='m6mWS29LUMIh2ZH9gh4KjmoNPiXBxeMCaq6eMxojBDc=')
+
+    for page in range(1,2):
+        api_result = request4(appkey, "GET", page)
+        print(api_result)
+        s = json.dumps(api_result)
+        sbs.send_event('entrysignals', s)
+
+    if False:
+        #1.»¦Éî¹ÉÊĞ
+        request1(appkey,"GET")
  
-    #1.æ²ªæ·±è‚¡å¸‚
-    request1(appkey,"GET")
+        #2.Ïã¸Û¹ÉÊĞ
+        request2(appkey,"GET")
  
-    #2.é¦™æ¸¯è‚¡å¸‚
-    request2(appkey,"GET")
+        #3.ÃÀ¹ú¹ÉÊĞ
+        request3(appkey,"GET")
  
-    #3.ç¾å›½è‚¡å¸‚
-    request3(appkey,"GET")
+        #4.Ïã¸Û¹ÉÊĞÁĞ±í
+        request4(appkey,"GET")
  
-    #4.é¦™æ¸¯è‚¡å¸‚åˆ—è¡¨
-    request4(appkey,"GET")
+        #5.ÃÀ¹ú¹ÉÊĞÁĞ±í
+        request5(appkey,"GET")
  
-    #5.ç¾å›½è‚¡å¸‚åˆ—è¡¨
-    request5(appkey,"GET")
+        #6.ÉîÛÚ¹ÉÊĞÁĞ±í
+        request6(appkey,"GET")
  
-    #6.æ·±åœ³è‚¡å¸‚åˆ—è¡¨
-    request6(appkey,"GET")
- 
-    #7.æ²ªè‚¡åˆ—è¡¨
-    request7(appkey,"GET")
+        #7.»¦¹ÉÁĞ±í
+        request7(appkey,"GET")
  
  
  
-#æ²ªæ·±è‚¡å¸‚
+#»¦Éî¹ÉÊĞ
 def request1(appkey, m="GET"):
     url = "http://web.juhe.cn:8080/finance/stock/hs"
     params = {
-        "gid" : "sh601009", #è‚¡ç¥¨ç¼–å·ï¼Œä¸Šæµ·è‚¡å¸‚ä»¥shå¼€å¤´ï¼Œæ·±åœ³è‚¡å¸‚ä»¥szå¼€å¤´å¦‚ï¼šsh601009
+        "gid" : "sh601009", #¹ÉÆ±±àºÅ£¬ÉÏº£¹ÉÊĞÒÔsh¿ªÍ·£¬ÉîÛÚ¹ÉÊĞÒÔsz¿ªÍ·Èç£ºsh601009
         "key" : appkey, #APP Key
  
     }
@@ -55,18 +64,18 @@ def request1(appkey, m="GET"):
     if res:
         error_code = res["error_code"]
         if error_code == 0:
-            #æˆåŠŸè¯·æ±‚
+            #³É¹¦ÇëÇó
             print res["result"]
         else:
             print "%s:%s" % (res["error_code"],res["reason"])
     else:
         print "request api error"
  
-#é¦™æ¸¯è‚¡å¸‚
+#Ïã¸Û¹ÉÊĞ
 def request2(appkey, m="GET"):
     url = "http://web.juhe.cn:8080/finance/stock/hk"
     params = {
-        "num" : "00001", #è‚¡ç¥¨ä»£ç ï¼Œå¦‚ï¼š00001 ä¸ºâ€œé•¿æ±Ÿå®ä¸šâ€è‚¡ç¥¨ä»£ç 
+        "num" : "00001", #¹ÉÆ±´úÂë£¬Èç£º00001 Îª¡°³¤½­ÊµÒµ¡±¹ÉÆ±´úÂë
         "key" : appkey, #APP Key
  
     }
@@ -81,18 +90,17 @@ def request2(appkey, m="GET"):
     if res:
         error_code = res["error_code"]
         if error_code == 0:
-            #æˆåŠŸè¯·æ±‚
             print res["result"]
         else:
             print "%s:%s" % (res["error_code"],res["reason"])
     else:
         print "request api error"
  
-#ç¾å›½è‚¡å¸‚
+#ÃÀ¹ú¹ÉÊĞ
 def request3(appkey, m="GET"):
     url = "http://web.juhe.cn:8080/finance/stock/usa"
     params = {
-        "gid" : "aapl", #è‚¡ç¥¨ä»£ç ï¼Œå¦‚ï¼šaapl ä¸ºâ€œè‹¹æœå…¬å¸â€çš„è‚¡ç¥¨ä»£ç 
+        "gid" : "aapl", #¹ÉÆ±´úÂë£¬Èç£ºaapl Îª¡°Æ»¹û¹«Ë¾¡±µÄ¹ÉÆ±´úÂë
         "key" : appkey, #APP Key
  
     }
@@ -107,20 +115,18 @@ def request3(appkey, m="GET"):
     if res:
         error_code = res["error_code"]
         if error_code == 0:
-            #æˆåŠŸè¯·æ±‚
             print res["result"]
         else:
             print "%s:%s" % (res["error_code"],res["reason"])
     else:
         print "request api error"
  
-#é¦™æ¸¯è‚¡å¸‚åˆ—è¡¨
-def request4(appkey, m="GET"):
+#Ïã¸Û¹ÉÊĞÁĞ±í
+def request4(appkey, m="GET", page=1):
     url = "http://web.juhe.cn:8080/finance/stock/hkall"
     params = {
-        "key" : appkey, #æ‚¨ç”³è¯·çš„APPKEY
-        "page" : "", #ç¬¬å‡ é¡µ,æ¯é¡µ20æ¡æ•°æ®,é»˜è®¤ç¬¬1é¡µ
- 
+        "key" : appkey, #ÄúÉêÇëµÄAPPKEY
+        "page" : page, #µÚ¼¸Ò³,Ã¿Ò³20ÌõÊı¾İ,Ä¬ÈÏµÚ1Ò³
     }
     params = urlencode(params)
     if m =="GET":
@@ -130,22 +136,23 @@ def request4(appkey, m="GET"):
  
     content = f.read()
     res = json.loads(content)
+    #return res
+    
     if res:
         error_code = res["error_code"]
         if error_code == 0:
-            #æˆåŠŸè¯·æ±‚
-            print res["result"]
+            return res["result"]
         else:
-            print "%s:%s" % (res["error_code"],res["reason"])
+            return None
     else:
-        print "request api error"
+        return None
  
-#ç¾å›½è‚¡å¸‚åˆ—è¡¨
+#ÃÀ¹ú¹ÉÊĞÁĞ±í
 def request5(appkey, m="GET"):
     url = "http://web.juhe.cn:8080/finance/stock/usaall"
     params = {
-        "key" : appkey, #æ‚¨ç”³è¯·çš„APPKEY
-        "page" : "", #ç¬¬å‡ é¡µ,æ¯é¡µ20æ¡æ•°æ®,é»˜è®¤ç¬¬1é¡µ
+        "key" : appkey, #ÄúÉêÇëµÄAPPKEY
+        "page" : "", #µÚ¼¸Ò³,Ã¿Ò³20ÌõÊı¾İ,Ä¬ÈÏµÚ1Ò³
  
     }
     params = urlencode(params)
@@ -159,19 +166,18 @@ def request5(appkey, m="GET"):
     if res:
         error_code = res["error_code"]
         if error_code == 0:
-            #æˆåŠŸè¯·æ±‚
             print res["result"]
         else:
             print "%s:%s" % (res["error_code"],res["reason"])
     else:
         print "request api error"
  
-#æ·±åœ³è‚¡å¸‚åˆ—è¡¨
+#ÉîÛÚ¹ÉÊĞÁĞ±í
 def request6(appkey, m="GET"):
     url = "http://web.juhe.cn:8080/finance/stock/szall"
     params = {
-        "key" : appkey, #æ‚¨ç”³è¯·çš„APPKEY
-        "page" : "", #ç¬¬å‡ é¡µ(æ¯é¡µ20æ¡æ•°æ®),é»˜è®¤ç¬¬1é¡µ
+        "key" : appkey, #ÄúÉêÇëµÄAPPKEY
+        "page" : "", #µÚ¼¸Ò³(Ã¿Ò³20ÌõÊı¾İ),Ä¬ÈÏµÚ1Ò³
  
     }
     params = urlencode(params)
@@ -185,19 +191,18 @@ def request6(appkey, m="GET"):
     if res:
         error_code = res["error_code"]
         if error_code == 0:
-            #æˆåŠŸè¯·æ±‚
             print res["result"]
         else:
             print "%s:%s" % (res["error_code"],res["reason"])
     else:
         print "request api error"
  
-#æ²ªè‚¡åˆ—è¡¨
+#»¦¹ÉÁĞ±í
 def request7(appkey, m="GET"):
     url = "http://web.juhe.cn:8080/finance/stock/shall"
     params = {
-        "key" : appkey, #æ‚¨ç”³è¯·çš„APPKEY
-        "page" : "", #ç¬¬å‡ é¡µ,æ¯é¡µ20æ¡æ•°æ®,é»˜è®¤ç¬¬1é¡µ
+        "key" : appkey, #ÄúÉêÇëµÄAPPKEY
+        "page" : "", #µÚ¼¸Ò³,Ã¿Ò³20ÌõÊı¾İ,Ä¬ÈÏµÚ1Ò³
  
     }
     params = urlencode(params)
@@ -211,7 +216,6 @@ def request7(appkey, m="GET"):
     if res:
         error_code = res["error_code"]
         if error_code == 0:
-            #æˆåŠŸè¯·æ±‚
             print res["result"]
         else:
             print "%s:%s" % (res["error_code"],res["reason"])
